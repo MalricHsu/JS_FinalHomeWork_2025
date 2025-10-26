@@ -41,7 +41,7 @@ function orderRender(data) {
               </td>
               <td>${formatTime(order.createdAt)}</td>
                 <td class="orderStatus" style="text-align: center">
-    <a  style="text-decoration:none;" href="#">
+    <a class="orderStatus-Btn" style="text-decoration:none;" href="#">
       ${
         order.paid
           ? '<span class="orderStatus-Btn" style="color:green;">已處理</span>'
