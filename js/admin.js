@@ -154,6 +154,13 @@ discardAllBtn.addEventListener("click", (e) => {
 });
 //刪除全部訂單
 function deleteAllOrder() {
+  if (orderData.length === 0) {
+    Swal.fire({
+      icon: "info",
+      title: "訂單已經是空的",
+    });
+    return;
+  }
   Swal.fire({
     title: "清除全部訂單",
     text: "您確定要清除全部訂單",
