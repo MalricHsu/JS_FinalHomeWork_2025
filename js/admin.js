@@ -16,6 +16,7 @@ function getOrder() {
     orderData.sort((a, b) => b.createdAt - a.createdAt);
     orderRender(orderData);
     calcProductTitle(orderData);
+    calcProductCategory(orderData);
   });
 }
 
@@ -181,6 +182,24 @@ discardAllBtn.addEventListener("click", (e) => {
   deleteAllOrder();
 });
 
+//LV1全產品類別營收比重
+function calcProductCategory(data) {
+  let productCategoryObj = {};
+  data.forEach((order) => {
+    order.products.forEach((product) => {
+      if (!productCategoryObj[product.category]) {
+        productCategoryObj[product.category] = product.price * product.quantity;
+      } else {
+        productCategoryObj[product.category] +=
+          product.price * product.quantity;
+      }
+    });
+  });
+  const productCategoryArr = Object.entries(productCategoryObj);
+  console.log(productCategoryArr);
+  chartRender(productCategoryArr);
+}
+
 //LV2全品項營收比重
 function calcProductTitle(data) {
   let productTitleObj = {};
@@ -212,12 +231,20 @@ function calcProductTitle(data) {
   chartRender(rank);
 }
 
-//c3.js
-function chartRender(data) {
-  let chart = c3.generate({
+//切換圖表設定變數
+let chart;
+const chartTitle = document.querySelector(".section-title");
+const changeBtn = document.querySelectorAll(".chart-buttons button");
+
+// 統一生成 C3.js 圖表函式
+function chartRender(data, type = "pie") {
+  //清掉舊圖表 DOM 元素和事件
+  if (chart) chart.destroy();
+
+  chart = c3.generate({
     bindto: "#chart", // HTML 元素綁定
     data: {
-      type: "pie",
+      type: type,
       columns: data,
     },
     color: {
@@ -225,6 +252,31 @@ function chartRender(data) {
     },
   });
 }
+
+//圖表按鈕切換
+changeBtn.forEach((btn) => {
+  btn.addEventListener("click", () => {
+    //先將所有按鈕的active移除
+    changeBtn.forEach((item) => {
+      item.classList.remove("active");
+    });
+    //接著點擊到的btn在增加active
+    btn.classList.add("active");
+
+    //更新標題
+    const title = btn.dataset.title;
+    chartTitle.textContent = title;
+
+    //根據 data-func 呼叫計算函式
+    const funcName = btn.dataset.func;
+    if (funcName === "calcProductCategory") {
+      calcProductCategory(orderData);
+    }
+    if (funcName === "calcProductTitle") {
+      calcProductTitle(orderData);
+    }
+  });
+});
 
 //初始化
 function init() {

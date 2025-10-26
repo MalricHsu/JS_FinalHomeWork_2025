@@ -905,3 +905,23 @@ body {
   display: none;
 }
 /*# sourceMappingURL=all.css.map */
+
+.chart-buttons {
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  margin-bottom: 28px;
+}
+.change-btn {
+  border: none;
+  font-size: 18px;
+  padding: 8px 12px;
+  font-weight: 700;
+  cursor: pointer;
+  border-radius: 4px;
+}
+
+.change-btn.active {
+  background-color: #6a33f8;
+  color: #fff;
+}
