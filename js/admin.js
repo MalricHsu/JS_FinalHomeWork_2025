@@ -1,3 +1,4 @@
+//取得後台網址、設定header資料
 const url = `https://livejs-api.hexschool.io/api/livejs/v1/admin/${api_path}`;
 const headers = {
   headers: {
@@ -5,10 +6,17 @@ const headers = {
   },
 };
 
-let orderData = {};
+//抓取DOM
+const discardAllBtn = document.querySelector(".discardAllBtn");
+
+//抓取父層元素
 const orderPageTableBody = document.querySelector(".orderPage-table tbody");
 
+//第一部分訂單區：取得訂單資料、時間格式、父層監聽事件：點擊刪除單筆訂單、修改訂單狀態、刪除單筆訂單
+//一般監聽事件：點擊刪除全部訂單、刪除全部訂單
+
 //取得訂單資料
+let orderData = {};
 function getOrder() {
   axios.get(`${url}/orders`, headers).then((res) => {
     console.log(res.data.orders);
@@ -19,7 +27,6 @@ function getOrder() {
     calcProductCategory(orderData);
   });
 }
-
 //渲染訂單資料
 function orderRender(data) {
   let orderTemplate = "";
@@ -56,13 +63,26 @@ function orderRender(data) {
   });
   orderPageTableBody.innerHTML = orderTemplate;
 }
-
 //時間格式
 function formatTime(timestamp) {
   const time = new Date(timestamp * 1000);
   return time.toLocaleString("zh-TW", { hour12: false });
 }
 
+//父層監聽事件：點擊刪除單筆訂單、修改訂單狀態
+orderPageTableBody.addEventListener("click", (e) => {
+  e.preventDefault();
+  console.log(e.target);
+  const id = e.target.closest("tr").getAttribute("data-id");
+  //刪除單筆訂單
+  if (e.target.classList.contains("delSingleOrder-Btn")) {
+    deleteSingleOrder(id);
+  }
+  //修改訂單狀態
+  if (e.target.classList.contains("orderStatus-Btn")) {
+    editOrderStatus(id);
+  }
+});
 //刪除單筆訂單
 function deleteSingleOrder(id) {
   let deleteItem;
@@ -101,7 +121,6 @@ function deleteSingleOrder(id) {
     }
   });
 }
-
 //修改訂單狀態
 function editOrderStatus(id) {
   let result = {};
@@ -128,20 +147,11 @@ function editOrderStatus(id) {
       console.log(err.message);
     });
 }
-
-//監聽事件 點擊刪除單筆訂單、修改訂單狀態
-orderPageTableBody.addEventListener("click", (e) => {
+//一般監聽事件：點擊刪除全部訂單
+discardAllBtn.addEventListener("click", (e) => {
   e.preventDefault();
-  console.log(e.target);
-  const id = e.target.closest("tr").getAttribute("data-id");
-  if (e.target.classList.contains("delSingleOrder-Btn")) {
-    deleteSingleOrder(id);
-  }
-  if (e.target.classList.contains("orderStatus-Btn")) {
-    editOrderStatus(id);
-  }
+  deleteAllOrder();
 });
-
 //刪除全部訂單
 function deleteAllOrder() {
   Swal.fire({
@@ -174,13 +184,30 @@ function deleteAllOrder() {
   });
 }
 
-const discardAllBtn = document.querySelector(".discardAllBtn");
+//第二部分圖表及切換圖表
 
-//監聽事件 點擊刪除全部訂單
-discardAllBtn.addEventListener("click", (e) => {
-  e.preventDefault();
-  deleteAllOrder();
-});
+//切換圖表設定變數
+let chart;
+const chartTitle = document.querySelector(".section-title");
+const changeBtn = document.querySelectorAll(".chart-buttons button");
+
+// 渲染圖表
+function chartRender(data, type = "pie") {
+  //清掉舊圖表 DOM 元素和事件
+  if (chart) chart.destroy();
+  chart = c3.generate({
+    bindto: "#chart",
+    data: {
+      type: type,
+      columns: data,
+    },
+    color: {
+      pattern: ["#DACBFF", "#9D7FEA", "#5434A7", "#301E5F"],
+    },
+  });
+}
+
+//圖表資料
 
 //LV1全產品類別營收比重
 function calcProductCategory(data) {
@@ -199,7 +226,6 @@ function calcProductCategory(data) {
   console.log(productCategoryArr);
   chartRender(productCategoryArr);
 }
-
 //LV2全品項營收比重
 function calcProductTitle(data) {
   let productTitleObj = {};
@@ -230,29 +256,6 @@ function calcProductTitle(data) {
   console.log(rank);
   chartRender(rank);
 }
-
-//切換圖表設定變數
-let chart;
-const chartTitle = document.querySelector(".section-title");
-const changeBtn = document.querySelectorAll(".chart-buttons button");
-
-// 統一生成 C3.js 圖表函式
-function chartRender(data, type = "pie") {
-  //清掉舊圖表 DOM 元素和事件
-  if (chart) chart.destroy();
-
-  chart = c3.generate({
-    bindto: "#chart", // HTML 元素綁定
-    data: {
-      type: type,
-      columns: data,
-    },
-    color: {
-      pattern: ["#DACBFF", "#9D7FEA", "#5434A7", "#301E5F"],
-    },
-  });
-}
-
 //圖表按鈕切換
 changeBtn.forEach((btn) => {
   btn.addEventListener("click", () => {

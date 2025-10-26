@@ -1,7 +1,7 @@
 const api_path = "7lun089";
 const token = "QPgcmOMzNcOuYpGT2SgFflyshcm1";
 
-//alert
+//sweetalert2
 const Toast = Swal.mixin({
   toast: true,
   position: "top-end",
