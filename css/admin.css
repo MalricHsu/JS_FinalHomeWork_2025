@@ -906,6 +906,10 @@ body {
 }
 /*# sourceMappingURL=all.css.map */
 
+.section-title {
+  font-size: 26px !important;
+}
+
 .chart-buttons {
   display: flex;
   justify-content: center;
