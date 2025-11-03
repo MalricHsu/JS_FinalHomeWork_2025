@@ -220,12 +220,7 @@ shoppingCartTableBody.addEventListener("click", (e) => {
   }
   //編輯購物車商品數量（增加）
   if (btn.classList.contains("plusBtn")) {
-    let result = {};
-    cartData.forEach((item) => {
-      if (item.id === Id) {
-        result = item;
-      }
-    });
+    const result = cartData.find((item) => item.id === Id);
     let qty = result.quantity + 1;
     editCartNum(Id, qty);
   }
@@ -286,6 +281,8 @@ function editCartNum(id, qty) {
     .patch(`${url}/carts`, editData)
     .then((res) => {
       cartData = res.data.carts;
+      //同步修改總金額
+      cartTotal = res.data.finalTotal;
       cartRender(cartData);
     })
     .catch((err) => {
@@ -387,7 +384,9 @@ function sendOrder() {
   axios
     .post(`${url}/orders`, orderData)
     .then((res) => {
-      console.log(res);
+      console.log(res.data.orders);
+      //清空購物車
+      getCartData();
     })
     .catch((err) => {
       console.log(err);
